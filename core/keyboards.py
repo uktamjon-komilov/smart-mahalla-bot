@@ -1,5 +1,6 @@
 from core.locales import *
 from core.models import *
+from core.utils import clean_phone_number
 
 
 MAIN_MENU_KEYBOARD = [
@@ -36,6 +37,7 @@ def get_city_keyboard():
 
 def get_mfy_keyboard(mfys):
     MFYS_INLINE_KEYBOARD = [
+        [{"text": BACK}],
         []
     ]
     for index, mfy in enumerate(mfys):
@@ -52,18 +54,31 @@ def get_mfy_text(mfy):
 
     if mfy.inspector and mfy.inspector_phone:
         text += "\n\n👮‍♂️IIB inspektori: {}".format(mfy.inspector)
-        text += "\n☎️Telefon nomeri: {}".format(mfy.inspector_phone)
+        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.inspector_phone))
     
     if mfy.rais and mfy.rais_phone:
         text += "\n\n🔰MFY raisi: {}".format(mfy.rais)
-        text += "\n☎️Telefon nomeri: {}".format(mfy.rais_phone)
+        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.rais_phone))
     
     if mfy.helper and mfy.helper_phone:
         text += "\n\n🔰Xokim yordamchisi: {}".format(mfy.helper)
-        text += "\n☎️Telefon nomeri: {}".format(mfy.helper_phone)
+        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.helper_phone))
     
     if mfy.leader and mfy.leader_phone:
         text += "\n\n🔰Yoshlar yetakchisi: {}".format(mfy.leader)
-        text += "\n☎️Telefon nomeri: {}".format(mfy.leader_phone)
+        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.leader_phone))
     
     return text
+
+
+INFO_KEYBOARD = [
+    [
+        {
+            "text": HELPER
+        },
+        {
+            "text": LEADER
+        },
+    ],
+    [{"text": BACK}]
+]

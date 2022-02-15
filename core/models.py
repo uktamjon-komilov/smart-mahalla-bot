@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -57,3 +58,19 @@ class Feedback(models.Model):
 
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
     text = models.TextField(verbose_name="Murojaat")
+
+
+class HelperInfographic(models.Model):
+    image = models.ImageField()
+
+    @property
+    def full_url(self):
+        return "{}{}".format(settings.BASE_URL, self.image.url)
+
+
+class LeaderInfographic(models.Model):
+    image = models.ImageField()
+
+    @property
+    def full_url(self):
+        return "{}{}".format(settings.BASE_URL, self.image.url)

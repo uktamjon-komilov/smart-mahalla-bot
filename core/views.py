@@ -22,7 +22,7 @@ class BotViewSet(
         data_service = TelegramService(data)
         bot_service = BotService(data)
 
-        if data_service.text == START:
+        if data_service.text == START or data_service.text == BACK:
             data_service.set_step("main-menu")
             bot_service.send_message(WELCOME_TEXT, MAIN_MENU_KEYBOARD)
 
@@ -41,9 +41,29 @@ class BotViewSet(
                 MFYS_KEYBOARD = get_mfy_keyboard(mfys)
                 bot_service.send_message(city_title, MFYS_KEYBOARD)
         
+        elif data_service.text == MAIN_MENU_ITEM2:
+            bot_service.send_message(CHOOSE_INFO, INFO_KEYBOARD)
+            data_service.set_step("info")
+        
         elif data_service.text == MAIN_MENU_ITEM3:
             bot_service.send_message(SEND_FEEDBACK)
             data_service.set_step("feedback")
+        
+        elif data_service.text == HELPER:
+            images = HelperInfographic.objects.all()
+            image_urls = []
+            for image in images:
+                image_urls.append(image.full_url)
+            bot_service.send_images(image_urls)
+            data_service.set_step("helper-info")
+        
+        elif data_service.text == LEADER:
+            images = LeaderInfographic.objects.all()
+            image_urls = []
+            for image in images:
+                image_urls.append(image.full_url)
+            bot_service.send_images(image_urls)
+            data_service.set_step("leader-info")
 
         elif data_service.check_step("feedback") and data_service.text:
             bot_service.send_message(THANKS_FEEDBACK)
@@ -52,6 +72,8 @@ class BotViewSet(
                 text=data_service.text
             )
             feedback.save()
+        
+        print(data_service.check_step("feedback"))
 
         mfy = MFY.objects.filter(title=data_service.text)
         if mfy.exists():

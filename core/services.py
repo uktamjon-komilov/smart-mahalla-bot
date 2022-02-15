@@ -71,6 +71,16 @@ class TelegramService:
         )
         profile.save()
         return profile
+    
+
+    def check_step(self, step):
+        profile = self.get_or_create_profile()
+        return profile.step == step
+    
+    def set_step(self, step):
+        profile = self.get_or_create_profile()
+        profile.step = step
+        profile.save()
 
 
 class BotService:
@@ -103,6 +113,28 @@ class BotService:
             URL,
             json=DATA
         )
+        if response.status_code == 200:
+            return True
+        return False
+    
+
+    def send_images(self, image_urls):
+        ACTION_VERB = "sendMediaGroup"
+        URL = "{}{}".format(self.BASE_URL, ACTION_VERB)
+        DATA = {
+            "chat_id": self.chat_id,
+            "media": [
+                {
+                    "type": "photo",
+                    "media": image_url
+                } for image_url in image_urls
+            ]
+        }
+        response = r.post(
+            URL,
+            json=DATA
+        )
+        print(response.content)
         if response.status_code == 200:
             return True
         return False
@@ -184,7 +216,7 @@ class ExcelService:
                 self.save_or_update(mfy_data.json())
     
 
-    def save_or_update(mfy_data):
+    def save_or_update(self, mfy_data):
         mfys = MFY.objects.filter(city=mfy_data["city"], title=mfy_data["title"])
         if mfys.exists():
             mfy_obj = mfys.first()
