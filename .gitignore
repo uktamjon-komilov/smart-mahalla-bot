@@ -241,3 +241,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django
+
+all.json
+excel_extractor.py
+data.xlsx
