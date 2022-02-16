@@ -18,3 +18,7 @@ HELPER = "Hokim yordamchisi"
 LEADER = "Yoshlar yordamchisi"
 
 BACK = "🔙Ortga"
+
+CONFIRM = "✅Tasdiqlayman"
+
+JOIN_CHANNELS = "Iltimos, botdan foydalanish uchun quyidagi kanallarga obuna bo'ling!"

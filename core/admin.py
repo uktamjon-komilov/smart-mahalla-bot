@@ -15,6 +15,7 @@ class MFYAdmin(admin.ModelAdmin):
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(City)
+admin.site.register(TelegramChannel)
 admin.site.register(MFY, MFYAdmin)
 admin.site.register(HelperInfographic)
 admin.site.register(LeaderInfographic)

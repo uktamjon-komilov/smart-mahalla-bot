@@ -82,3 +82,22 @@ INFO_KEYBOARD = [
     ],
     [{"text": BACK}]
 ]
+
+
+def get_subscription_keyboard(channels):
+    SUBSCRIPTION_INLINE_KEYBOARD = [
+        []
+    ]
+    for index, channel in enumerate(channels):
+        SUBSCRIPTION_INLINE_KEYBOARD[-1].append({
+            "text": "⭕️{}".format(channel.title),
+            "url": "{}".format(channel.url)
+        })
+        SUBSCRIPTION_INLINE_KEYBOARD.append([])
+    SUBSCRIPTION_INLINE_KEYBOARD.append([
+        {
+            "text": CONFIRM,
+            "callback_data": CONFIRM
+        }
+    ])
+    return SUBSCRIPTION_INLINE_KEYBOARD

@@ -74,3 +74,12 @@ class LeaderInfographic(models.Model):
     @property
     def full_url(self):
         return "{}{}".format(settings.BASE_URL, self.image.url)
+
+
+class TelegramChannel(models.Model):
+    title = models.CharField(max_length=255)
+    chat_id = models.CharField(max_length=255)
+    url = models.TextField(default="")
+
+    def __str__(self):
+        return self.title or "-"

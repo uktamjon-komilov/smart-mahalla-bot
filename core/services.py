@@ -2,7 +2,7 @@ from django.conf import settings
 import requests as r
 from openpyxl import load_workbook
 
-from core.models import MFY, City, Profile
+from core.models import MFY, City, Profile, TelegramChannel
 from core.utils import *
 
 
@@ -52,11 +52,36 @@ class TelegramService:
         if text == "":
             text = self.callback_query.get("data", "")
         return text
+    
+
+    @property
+    def message_id(self):
+        message_id = self.message.get("message_id", "")
+        if message_id == "":
+            message = self.callback_query.get("message", {})
+            message_id = message.get("message_id", "")
+        return message_id
 
     @property
     def profile(self):
         profile = self.get_or_create_profile()
         return profile
+    
+    @property
+    def unsubscribed(self):
+        channels = TelegramChannel.objects.all()
+        unsubscribed_channels = []
+        for channel in channels:
+            if not BotService.check_member(channel.chat_id, self.chat_id):
+                unsubscribed_channels.append(channel)
+        
+        return unsubscribed_channels
+
+
+    @property
+    def member(self):
+        return len(self.unsubscribed) == 0
+        
 
     def get_or_create_profile(self):
         profiles = Profile.objects.filter(tg_id=self.chat_id)
@@ -134,9 +159,47 @@ class BotService:
             URL,
             json=DATA
         )
+        if response.status_code == 200:
+            return True
+        return False
+    
+    def delete_message(self, message_id):
+        ACTION_VERB = "deleteMessage"
+        URL = "{}{}".format(self.BASE_URL, ACTION_VERB)
+        DATA = {
+            "chat_id": self.chat_id,
+            "message_id": message_id
+        }
+        print(DATA)
+        response = r.post(
+            URL,
+            json=DATA
+        )
         print(response.content)
         if response.status_code == 200:
             return True
+        return False
+    
+
+    @staticmethod
+    def check_member(chat_id, user_id):
+        ACTION_VERB = "getChatMember"
+        BASE_URL = "https://api.telegram.org/bot{}/".format(settings.BOT_TOKEN)
+        URL = "{}{}".format(BASE_URL, ACTION_VERB)
+        DATA = {
+            "chat_id": chat_id,
+            "user_id": user_id
+        }
+        response = r.post(
+            URL,
+            json=DATA
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if not data["ok"]:
+                return data["ok"]
+            else:
+                return data["result"]["status"] != "left" and data["result"]["status"] != "banned"
         return False
 
 
@@ -156,11 +219,12 @@ class MfyData:
     
 
     def translit(self):
-        self.title = convert_to_latin(self.title)
-        self.inspector = convert_to_latin(self.inspector)
-        self.rais = convert_to_latin(self.rais)
-        self.helper = convert_to_latin(self.helper)
-        self.leader = convert_to_latin(self.leader)
+        trans = Trans()
+        self.title = trans.translit(self.title)
+        self.inspector = trans.translit(self.inspector)
+        self.rais = trans.translit(self.rais)
+        self.helper = trans.translit(self.helper)
+        self.leader = trans.translit(self.leader)
     
 
     def json(self):
@@ -185,7 +249,6 @@ class ExcelService:
     cities = {}
 
     def __init__(self, file_name):
-        from pprint import pprint
         try:
             self.wb = load_workbook(file_name)
             for sheet in self.wb:

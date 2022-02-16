@@ -22,17 +22,34 @@ class BotViewSet(
         data_service = TelegramService(data)
         bot_service = BotService(data)
 
-        if data_service.text == START or data_service.text == BACK:
-            data_service.set_step("main-menu")
+
+
+        if data_service.text == CONFIRM:
+            if data_service.member:
+                bot_service.delete_message(data_service.message_id)
+                bot_service.send_message(WELCOME_TEXT, MAIN_MENU_KEYBOARD)
+                data_service.set_step("main-menu")
+            else:
+                bot_service.delete_message(data_service.message_id)
+                CHANNELS_KEYBOARD = get_subscription_keyboard(data_service.unsubscribed)
+                bot_service.send_message(JOIN_CHANNELS, CHANNELS_KEYBOARD, inline=True)
+                data_service.set_step("ask-subsciption")
+
+        elif not data_service.member:
+            CHANNELS_KEYBOARD = get_subscription_keyboard(data_service.unsubscribed)
+            bot_service.send_message(JOIN_CHANNELS, CHANNELS_KEYBOARD, inline=True)
+            data_service.set_step("ask-subsciption")
+
+        elif data_service.text == START or data_service.text == BACK:
             bot_service.send_message(WELCOME_TEXT, MAIN_MENU_KEYBOARD)
+            data_service.set_step("main-menu")
 
         elif data_service.text == MAIN_MENU_ITEM1:
-            data_service.set_step("cities")
             CITY_INLINE_KEYBOARD = get_city_keyboard()
             bot_service.send_message(CHOOSE_CITY, CITY_INLINE_KEYBOARD, inline=True)
+            data_service.set_step("cities")
         
         elif data_service.text.startswith("data-city"):
-            data_service.set_step("city")
             city_title = data_service.text.split("-")[-1]
             mfys = MFY.objects.filter(city__title=city_title)
             if not mfys.exists():
@@ -40,6 +57,7 @@ class BotViewSet(
             else:
                 MFYS_KEYBOARD = get_mfy_keyboard(mfys)
                 bot_service.send_message(city_title, MFYS_KEYBOARD)
+            data_service.set_step("city")
         
         elif data_service.text == MAIN_MENU_ITEM2:
             bot_service.send_message(CHOOSE_INFO, INFO_KEYBOARD)
@@ -66,14 +84,13 @@ class BotViewSet(
             data_service.set_step("leader-info")
 
         elif data_service.check_step("feedback") and data_service.text:
-            bot_service.send_message(THANKS_FEEDBACK)
+            bot_service.send_message(THANKS_FEEDBACK, MAIN_MENU_KEYBOARD)
             feedback = Feedback(
                 profile=data_service.profile,
                 text=data_service.text
             )
             feedback.save()
-        
-        print(data_service.check_step("feedback"))
+            data_service.set_step("main-menu")
 
         mfy = MFY.objects.filter(title=data_service.text)
         if mfy.exists():
