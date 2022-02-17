@@ -23,6 +23,8 @@ class Trans:
         button.click()
         sleep(0.2)
         result = self.driver.find_element_by_id("to-text").get_attribute("value")
+        print(result)
+        self.from_text.clear()
         return result
     
 

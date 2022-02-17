@@ -25,7 +25,8 @@ class City(models.Model):
         verbose_name = "Shahar/Tuman"
         verbose_name_plural = "Shaharlar/Tumanlar"
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, verbose_name="Shahar/tuman nomi")
+    mfys_count = models.IntegerField(default=0, verbose_name="MFYlar soni")
 
     def __str__(self):
         return self.title or ""
@@ -61,7 +62,11 @@ class Feedback(models.Model):
 
 
 class HelperInfographic(models.Model):
-    image = models.ImageField()
+    class Meta:
+        verbose_name = "Hokim yordamchisi infogrfikasi"
+        verbose_name_plural = "Hokim yordamchisi infogrfikalari"
+    
+    image = models.ImageField(verbose_name="Rasm")
 
     @property
     def full_url(self):
@@ -69,7 +74,11 @@ class HelperInfographic(models.Model):
 
 
 class LeaderInfographic(models.Model):
-    image = models.ImageField()
+    class Meta:
+        verbose_name = "Yoshlar yetakchisi infografikasi"
+        verbose_name_plural = "Yoshlar yetakchisi infografikalari"
+    
+    image = models.ImageField(verbose_name="Rasm")
 
     @property
     def full_url(self):
@@ -77,9 +86,13 @@ class LeaderInfographic(models.Model):
 
 
 class TelegramChannel(models.Model):
-    title = models.CharField(max_length=255)
-    chat_id = models.CharField(max_length=255)
-    url = models.TextField(default="")
+    class Meta:
+        verbose_name = "Obuna telegram kanal"
+        verbose_name_plural = "Obuna telegram kanallar"
+    
+    title = models.CharField(max_length=255, verbose_name="Kanal nomi")
+    chat_id = models.CharField(max_length=255, verbose_name="ID")
+    url = models.TextField(default="", verbose_name="Havola")
 
     def __str__(self):
         return self.title or "-"

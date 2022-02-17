@@ -15,7 +15,7 @@ SEND_FEEDBACK = "Murojaatingizni jo'nating"
 THANKS_FEEDBACK = "Murojaatingiz uchun rahmat!"
 
 HELPER = "Hokim yordamchisi"
-LEADER = "Yoshlar yordamchisi"
+LEADER = "Yoshlar yetakchisi"
 
 BACK = "🔙Ortga"
 

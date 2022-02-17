@@ -13,9 +13,9 @@ MAIN_MENU_KEYBOARD = [
         {
             "text": MAIN_MENU_ITEM2
         },
-        {
-            "text": MAIN_MENU_ITEM3
-        },
+        # {
+        #     "text": MAIN_MENU_ITEM3
+        # },
     ]
 ]
 
@@ -27,7 +27,7 @@ def get_city_keyboard():
     cities = City.objects.all()
     for index, city in enumerate(cities):
         CITY_INLINE_KEYBOARD[-1].append({
-            "text": city.title,
+            "text": "{} ({})".format(city.title, city.mfys_count),
             "callback_data": "data-city-{}".format(city.title)
         })
         if index % 2 == 1:
