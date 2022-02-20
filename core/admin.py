@@ -24,6 +24,8 @@ class HelperInfographicAdmin(admin.ModelAdmin):
             return format_html("<img src='{}' style='display: block; width: 300px; height: 300px;'/>".format(obj.image.url))
         except:
             return format_html("<div></div>")
+    
+    get_image.short_description = "Rasm"
 
 
 @admin_thumbnails.thumbnail("image")
@@ -35,11 +37,13 @@ class LeaderInfographicAdmin(admin.ModelAdmin):
             return format_html("<img src='{}' style='display: block; width: 300px; height: 300px;'/>".format(obj.image.url))
         except:
             return format_html("<div></div>")
-
+    
+    get_image.short_description = "Rasm"
 
 
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(City)
+admin.site.register(Region)
 admin.site.register(TelegramChannel)
 admin.site.register(MFY, MFYAdmin)
 admin.site.register(HelperInfographic, HelperInfographicAdmin)

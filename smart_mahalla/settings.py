@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import environ
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,7 +10,7 @@ environ.Env().read_env(os.path.join(BASE_DIR, ".env"))
 
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = True
+DEBUG = env("DEBUG") == "0"
 
 ALLOWED_HOSTS = [
     "*"
@@ -25,12 +26,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    "core"
+    "core",
+    "rosetta"
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -58,12 +61,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "smart_mahalla.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME"),
+            "HOST": env("DB_HOST"),
+            "PORT": env("DB_PORT"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD")
+        }
+    }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -86,6 +102,8 @@ TIME_ZONE = "Asia/Tashkent"
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 STATIC_URL = "/static/"
@@ -101,3 +119,17 @@ BOT_TOKEN = env("BOT_TOKEN")
 BASE_URL = env("BASE_URL")
 
 CHROME_DRIVER = env("CHROME_DRIVER")
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Smart Mahalla Bot",
+    "site_header": "Smart Mahalla Bot",
+    "site_brand": "Smart Mahalla Bot",
+}
+
+LANGUAGES = (
+    ("uz", _("O'zbekcha")),
+)
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale/",
+]

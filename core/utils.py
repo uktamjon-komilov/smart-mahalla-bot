@@ -9,7 +9,7 @@ class Trans:
     BASE_URL = "https://uzlatin.com"
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.headless = True
+        # chrome_options.headless = True
         self.driver = webdriver.Chrome(
             CHROME_DRIVER,
             chrome_options=chrome_options
@@ -17,14 +17,20 @@ class Trans:
         self.driver.get(self.BASE_URL)
     
     def translit(self, text):
-        self.from_text = self.driver.find_element_by_id("from-text")
-        self.from_text.send_keys(text)
+        if text.strip() == "":
+            text = "-"
+        from_text = self.driver.find_element_by_id("from-text")
+        from_text.clear()
+        from_text.send_keys(text)
         button = self.driver.find_element_by_css_selector(".btn.btn-primary.btn-lg.form-send-btn")
         button.click()
-        sleep(0.2)
-        result = self.driver.find_element_by_id("to-text").get_attribute("value")
+        sleep(0.3)
+        result_input = self.driver.find_element_by_id("to-text")
+        result = result_input.get_attribute("value")
+        while result == "":
+            result = result_input.get_attribute("value")
         print(result)
-        self.from_text.clear()
+        from_text.clear()
         return result
     
 

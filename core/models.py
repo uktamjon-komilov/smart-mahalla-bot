@@ -20,11 +20,24 @@ class Profile(models.Model):
         return self.tg_id or ""
 
 
+class Region(models.Model):
+    class Meta:
+        verbose_name = "Hudud"
+        verbose_name_plural = "Hududlar"
+
+    title = models.CharField(max_length=255, verbose_name="Hudud nomi")
+    cities_count = models.IntegerField(default=0, verbose_name="Tuman/shaharlar soni")
+
+    def __str__(self):
+        return self.title or ""
+
+
 class City(models.Model):
     class Meta:
         verbose_name = "Shahar/Tuman"
         verbose_name_plural = "Shaharlar/Tumanlar"
 
+    region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, verbose_name="Shahar/tuman nomi")
     mfys_count = models.IntegerField(default=0, verbose_name="MFYlar soni")
 
