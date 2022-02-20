@@ -63,6 +63,49 @@ def clean_phone_number(phone):
         sign = "+998-"
     return sign + result
 
+
+def is_photo(file_path):
+    TYPES = ["jpg", "jpeg"]
+    parts = file_path.split(".")
+    if len(parts):
+        return parts[-1].lower() in TYPES
+    return False
+
+
+def is_video(file_path):
+    TYPES = ["mp4"]
+    parts = file_path.split(".")
+    if len(parts):
+        return parts[-1].lower() in TYPES
+    return False
+
+
+def send_infographics_photos(bot_service, media):
+    media = [media_item for media_item in media if is_photo(media_item.full_url)]
+    print(media)
+    image_urls = [[]]
+    for image in media:
+        image_urls[-1].append(image.full_url)
+        if len(image_urls[-1]) == 9:
+            image_urls.append([])
+    print(image_urls)
+    for images_list in image_urls:
+        bot_service.send_images(images_list)
+
+
+def send_infographics_videos(bot_service, media):
+    media = [media_item for media_item in media if is_video(media_item.full_url)]
+    print(media)
+    video_urls = [[]]
+    for video in media:
+        video_urls[-1].append(video.full_url)
+        if len(video_urls[-1]) == 9:
+            video_urls.append([])
+    print(video_urls)
+    for videos_list in video_urls:
+        bot_service.send_images(videos_list)
+
+
 def main():
     result = convert_to_latin("Ўрмончилар МФЙ")
     # print(result)

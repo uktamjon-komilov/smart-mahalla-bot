@@ -7,24 +7,45 @@ MAIN_MENU_KEYBOARD = [
     [
         {
             "text": MAIN_MENU_ITEM1
-        }
-    ],
-    [
+        },
         {
             "text": MAIN_MENU_ITEM2
-        },
-        # {
-        #     "text": MAIN_MENU_ITEM3
-        # },
-    ]
+        }
+    ],
 ]
 
 
-def get_city_keyboard():
-    CITY_INLINE_KEYBOARD = [
+def get_regions_keyboard():
+    REGIONS_INLINE_KEYBOARD = [
+        [
+            {
+                "text": BACK,
+                "callback_data": BACK
+            }
+        ],
         []
     ]
-    cities = City.objects.all()
+    regions = Region.objects.all()
+    for index, region in enumerate(regions):
+        REGIONS_INLINE_KEYBOARD[-1].append({
+            "text": "{}".format(region.title),
+            "callback_data": "data-region-{}".format(region.title)
+        })
+        if index % 2 == 1:
+            REGIONS_INLINE_KEYBOARD.append([])
+    return REGIONS_INLINE_KEYBOARD
+
+
+def get_city_keyboard(cities):
+    CITY_INLINE_KEYBOARD = [
+        [
+            {
+                "text": BACK,
+                "callback_data": BACK
+            }
+        ],
+        []
+    ]
     for index, city in enumerate(cities):
         CITY_INLINE_KEYBOARD[-1].append({
             "text": "{} ({})".format(city.title, city.mfys_count),

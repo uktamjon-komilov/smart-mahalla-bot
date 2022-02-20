@@ -143,6 +143,40 @@ class BotService:
         return False
     
 
+    def send_photo(self, image_url):
+        ACTION_VERB = "sendPhoto"
+        URL = "{}{}".format(self.BASE_URL, ACTION_VERB)
+        DATA = {
+            "chat_id": self.chat_id,
+            "photo": image_url,
+            "parse_mode": "HTML"
+        }
+        response = r.post(
+            URL,
+            json=DATA
+        )
+        if response.status_code == 200:
+            return True
+        return False
+
+
+    def send_video(self, video_url):
+        ACTION_VERB = "sendVideo"
+        URL = "{}{}".format(self.BASE_URL, ACTION_VERB)
+        DATA = {
+            "chat_id": self.chat_id,
+            "video": video_url,
+            "parse_mode": "HTML"
+        }
+        response = r.post(
+            URL,
+            json=DATA
+        )
+        if response.status_code == 200:
+            return True
+        return False
+    
+
     def send_images(self, image_urls):
         ACTION_VERB = "sendMediaGroup"
         URL = "{}{}".format(self.BASE_URL, ACTION_VERB)
@@ -162,7 +196,29 @@ class BotService:
         if response.status_code == 200:
             return True
         return False
-    
+
+
+    def send_videos(self, video_urls):
+        ACTION_VERB = "sendMediaGroup"
+        URL = "{}{}".format(self.BASE_URL, ACTION_VERB)
+        DATA = {
+            "chat_id": self.chat_id,
+            "media": [
+                {
+                    "type": "video",
+                    "media": image_url
+                } for image_url in video_urls
+            ]
+        }
+        response = r.post(
+            URL,
+            json=DATA
+        )
+        if response.status_code == 200:
+            return True
+        return False
+
+
     def delete_message(self, message_id):
         ACTION_VERB = "deleteMessage"
         URL = "{}{}".format(self.BASE_URL, ACTION_VERB)

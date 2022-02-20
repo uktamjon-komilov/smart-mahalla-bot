@@ -5,6 +5,7 @@ from rest_framework import status
 from core.services import BotService, TelegramService
 from core.keyboards import *
 from core.locales import *
+from core.utils import is_photo, send_infographics_photos, send_infographics_videos
 
 
 
@@ -22,8 +23,6 @@ class BotViewSet(
         data_service = TelegramService(data)
         bot_service = BotService(data)
 
-
-
         if data_service.text == CONFIRM:
             if data_service.member:
                 bot_service.delete_message(data_service.message_id)
@@ -34,6 +33,16 @@ class BotViewSet(
                 CHANNELS_KEYBOARD = get_subscription_keyboard(data_service.unsubscribed)
                 bot_service.send_message(JOIN_CHANNELS, CHANNELS_KEYBOARD, inline=True)
                 data_service.set_step("ask-subsciption")
+        
+        elif data_service.text == BACK and data_service.check_step("regions"):
+            bot_service.send_message(WELCOME_TEXT, MAIN_MENU_KEYBOARD)
+            bot_service.delete_message(data_service.message_id)
+        
+        elif data_service.text == BACK and data_service.check_step("city"):
+            REGIONS_INLINE_KEYBOARD = get_regions_keyboard()
+            bot_service.send_message(CHOOSE_REGION, REGIONS_INLINE_KEYBOARD, inline=True)
+            data_service.set_step("regions")
+            bot_service.delete_message(data_service.message_id)
 
         elif not data_service.member:
             CHANNELS_KEYBOARD = get_subscription_keyboard(data_service.unsubscribed)
@@ -45,9 +54,20 @@ class BotViewSet(
             data_service.set_step("main-menu")
 
         elif data_service.text == MAIN_MENU_ITEM1:
-            CITY_INLINE_KEYBOARD = get_city_keyboard()
-            bot_service.send_message(CHOOSE_CITY, CITY_INLINE_KEYBOARD, inline=True)
-            data_service.set_step("cities")
+            REGIONS_INLINE_KEYBOARD = get_regions_keyboard()
+            bot_service.send_message(CHOOSE_REGION, REGIONS_INLINE_KEYBOARD, inline=True)
+            data_service.set_step("regions")
+        
+        elif data_service.text.startswith("data-region"):
+            region_title = data_service.text.split("-")[-1]
+            cities = City.objects.filter(region__title=region_title)
+            if not cities.exists():
+                bot_service.send_message(DATA_NOT_EXISTS)
+            else:
+                bot_service.delete_message(data_service.message_id)
+                CITY_INLINE_KEYBOARD = get_city_keyboard(cities)
+                bot_service.send_message(region_title, CITY_INLINE_KEYBOARD, inline=True)
+            data_service.set_step("city")
         
         elif data_service.text.startswith("data-city"):
             city_title = data_service.text.split("-")[-1]
@@ -68,19 +88,15 @@ class BotViewSet(
             data_service.set_step("feedback")
         
         elif data_service.text == HELPER:
-            images = HelperInfographic.objects.all()
-            image_urls = []
-            for image in images:
-                image_urls.append(image.full_url)
-            bot_service.send_images(image_urls)
+            files = HelperInfographic.objects.all()
+            send_infographics_photos(bot_service, files)
+            send_infographics_videos(bot_service, files)
             data_service.set_step("helper-info")
         
         elif data_service.text == LEADER:
-            images = LeaderInfographic.objects.all()
-            image_urls = []
-            for image in images:
-                image_urls.append(image.full_url)
-            bot_service.send_images(image_urls)
+            files = LeaderInfographic.objects.all()
+            send_infographics_photos(bot_service, files)
+            send_infographics_videos(bot_service, files)
             data_service.set_step("leader-info")
 
         elif data_service.check_step("feedback") and data_service.text:

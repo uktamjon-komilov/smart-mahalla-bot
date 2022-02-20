@@ -79,7 +79,7 @@ class HelperInfographic(models.Model):
         verbose_name = "Hokim yordamchisi infogrfikasi"
         verbose_name_plural = "Hokim yordamchisi infogrfikalari"
     
-    image = models.ImageField(verbose_name="Rasm")
+    image = models.FileField(verbose_name="Media Fayl")
 
     @property
     def full_url(self):
@@ -91,7 +91,7 @@ class LeaderInfographic(models.Model):
         verbose_name = "Yoshlar yetakchisi infografikasi"
         verbose_name_plural = "Yoshlar yetakchisi infografikalari"
     
-    image = models.ImageField(verbose_name="Rasm")
+    image = models.FileField(verbose_name="Media Fayl")
 
     @property
     def full_url(self):
