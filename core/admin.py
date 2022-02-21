@@ -10,9 +10,14 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ["tg_id", "tg_username", "first_name", "last_name"]
 
 
+class SchoolStackedInline(admin.StackedInline):
+    model = School
+
+
 class MFYAdmin(admin.ModelAdmin):
     list_filter = ["city"]
     search_fields = ["city__title", "title"]
+    inlines = [SchoolStackedInline]
     
 
 @admin_thumbnails.thumbnail("image")
@@ -23,7 +28,7 @@ class HelperInfographicAdmin(admin.ModelAdmin):
         try:
             return format_html("<img src='{}' style='display: block; width: 300px; height: 300px;'/>".format(obj.image.url))
         except:
-            return format_html("<div></div>")
+            return format_html("<div>{}</div>".format(obj.full_url))
     
     get_image.short_description = "Rasm"
 
@@ -36,7 +41,7 @@ class LeaderInfographicAdmin(admin.ModelAdmin):
         try:
             return format_html("<img src='{}' style='display: block; width: 300px; height: 300px;'/>".format(obj.image.url))
         except:
-            return format_html("<div></div>")
+            return format_html("<div>{}</div>".format(obj.full_url))
     
     get_image.short_description = "Rasm"
 
@@ -44,6 +49,7 @@ class LeaderInfographicAdmin(admin.ModelAdmin):
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(City)
 admin.site.register(Region)
+admin.site.register(Sector)
 admin.site.register(TelegramChannel)
 admin.site.register(MFY, MFYAdmin)
 admin.site.register(HelperInfographic, HelperInfographicAdmin)

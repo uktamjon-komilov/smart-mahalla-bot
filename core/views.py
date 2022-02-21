@@ -89,14 +89,14 @@ class BotViewSet(
         
         elif data_service.text == HELPER:
             files = HelperInfographic.objects.all()
-            send_infographics_photos(bot_service, files)
             send_infographics_videos(bot_service, files)
+            send_infographics_photos(bot_service, files)
             data_service.set_step("helper-info")
         
         elif data_service.text == LEADER:
             files = LeaderInfographic.objects.all()
-            send_infographics_photos(bot_service, files)
             send_infographics_videos(bot_service, files)
+            send_infographics_photos(bot_service, files)
             data_service.set_step("leader-info")
 
         elif data_service.check_step("feedback") and data_service.text:

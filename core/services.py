@@ -2,7 +2,7 @@ from django.conf import settings
 import requests as r
 from openpyxl import load_workbook
 
-from core.models import MFY, City, Profile, TelegramChannel
+from core.models import MFY, City, Profile, School, TelegramChannel
 from core.utils import *
 
 
@@ -172,6 +172,7 @@ class BotService:
             URL,
             json=DATA
         )
+        print(response.content)
         if response.status_code == 200:
             return True
         return False
@@ -271,8 +272,39 @@ class MfyData:
         self.helper_phone = clean_phone_number(data[7] or "")
         self.leader = data[8] or ""
         self.leader_phone = clean_phone_number(data[9] or "")
-        self.translit()
+        self.schools = self.exptract_schools(data)
+        # self.translit()
     
+
+    def exptract_schools(self, data):
+        column = data[10]
+        phones = data[11]
+        schools_list = []
+        if not column:
+            return schools_list
+        schools_raw = list(filter(lambda x: len(x) > 0, column.split(";")))
+        phones_raw = list(filter(lambda x: len(x) > 0, str(phones).split(";")))
+        for index, school in enumerate(schools_raw):
+            try:
+                if "maktab" in school:
+                    title, head_master = list(map(lambda x: x.strip(), school.split("maktab")))
+                    title += " maktab"
+                elif "IDUM" in school:
+                    title, head_master = list(map(lambda x: x.strip(), school.split("IDUM")))
+                    title += " IDUM"
+                schools_list.append({
+                    "title": title,
+                    "head_master": head_master,
+                    "phone": clean_phone_number(phones_raw[index])
+                })
+            except:
+                schools_list.append({
+                    "title": "-",
+                    "head_master": "-",
+                    "phone": "-"
+                })
+        return schools_list
+
 
     def translit(self):
         trans = Trans()
@@ -294,7 +326,8 @@ class MfyData:
             "helper": self.helper,
             "helper_phone": self.helper_phone,
             "leader": self.leader,
-            "leader_phone": self.leader_phone
+            "leader_phone": self.leader_phone,
+            "schools": self.schools
         }
 
 
@@ -330,12 +363,13 @@ class ExcelService:
                 pass
         
         for row in self.items_sheet.values:
-            if row[0] != "city":
+            if row[0] and row[0] != "Tuman/Shaharlar IDsi":
                 mfy_data = MfyData(row, self.cities)
                 self.save_or_update(mfy_data.json())
     
 
     def save_or_update(self, mfy_data):
+        schools_list = mfy_data.pop("schools", [])
         mfys = MFY.objects.filter(city=mfy_data["city"], title=mfy_data["title"])
         if mfys.exists():
             mfy_obj = mfys.first()
@@ -346,3 +380,6 @@ class ExcelService:
         else:
             mfy_obj = MFY(**mfy_data)
             mfy_obj.save()
+        for school_item in schools_list:
+            school = School(mfy=mfy_obj, **school_item)
+            school.save()

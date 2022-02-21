@@ -45,12 +45,26 @@ class City(models.Model):
         return self.title or ""
 
 
+class Sector(models.Model):
+    class Meta:
+        verbose_name = "Sektor rahbari"
+        verbose_name_plural = "Sektor rahbarlari"
+
+    number = models.IntegerField(null=True)
+    director = models.CharField(max_length=255, null=True, blank=True, verbose_name="Sektor rahbari")
+    director_phone = models.CharField(max_length=255, null=True, blank=True, verbose_name="Sektor rahbari telefon nomeri:")
+
+    def __str__(self):
+        return self.director or "-"
+
+
 class MFY(models.Model):
     class Meta:
         verbose_name = "Mahalla fuqarolar yig'ini"
         verbose_name_plural = "Mahalla fuqarolar yig'inlari"
 
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True)
+    sector = models.ForeignKey(Sector, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, verbose_name="MFY nomi")
     inspector = models.CharField(max_length=255, null=True, blank=True, verbose_name="IIB inspektori FISH")
     inspector_phone = models.CharField(max_length=255, null=True, blank=True, verbose_name="Telefon nomeri")
@@ -63,6 +77,16 @@ class MFY(models.Model):
 
     def __str__(self):
         return self.title or ""
+
+
+class School(models.Model):
+    mfy = models.ForeignKey(MFY, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, verbose_name="Maktab nomi")
+    head_master = models.CharField(max_length=255, verbose_name="Direktori")
+    phone = models.CharField(max_length=255, verbose_name="Telefon raqami")
+
+    def __str__(self):
+        return self.title or "-"
 
 
 class Feedback(models.Model):
@@ -79,10 +103,13 @@ class HelperInfographic(models.Model):
         verbose_name = "Hokim yordamchisi infogrfikasi"
         verbose_name_plural = "Hokim yordamchisi infogrfikalari"
     
-    image = models.FileField(verbose_name="Media Fayl")
+    image = models.FileField(verbose_name="Media Fayl", null=True, blank=True)
+    file_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="Video ID")
 
     @property
     def full_url(self):
+        if self.file_id:
+            return self.file_id
         return "{}{}".format(settings.BASE_URL, self.image.url)
 
 
@@ -91,10 +118,13 @@ class LeaderInfographic(models.Model):
         verbose_name = "Yoshlar yetakchisi infografikasi"
         verbose_name_plural = "Yoshlar yetakchisi infografikalari"
     
-    image = models.FileField(verbose_name="Media Fayl")
+    image = models.FileField(verbose_name="Media Fayl", null=True, blank=True)
+    file_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="Video ID")
 
     @property
     def full_url(self):
+        if self.file_id:
+            return self.file_id
         return "{}{}".format(settings.BASE_URL, self.image.url)
 
 

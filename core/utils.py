@@ -47,6 +47,8 @@ def convert_to_latin(text):
 
 
 def clean_phone_number(phone):
+    if not phone or len(str(phone)) < 3:
+        return ""
     result = str(phone) \
             .replace("(", "") \
             .replace(")", "") \
@@ -54,9 +56,11 @@ def clean_phone_number(phone):
             .replace("\\", "") \
             .replace("-", "") \
             .replace("_", "") \
-            .replace(".", "") \
             .replace("+", "") \
-            .replace(" ", "")
+            .replace(".0", "") \
+            .replace(" ", "") \
+            .replace("\n", "") \
+            .replace("\t", "")
     
     sign = "+"
     if len(result) <= 9:
@@ -73,37 +77,39 @@ def is_photo(file_path):
 
 
 def is_video(file_path):
-    TYPES = ["mp4"]
     parts = file_path.split(".")
-    if len(parts):
-        return parts[-1].lower() in TYPES
+    if len(parts) == 1:
+        return True
     return False
 
 
 def send_infographics_photos(bot_service, media):
     media = [media_item for media_item in media if is_photo(media_item.full_url)]
-    print(media)
-    image_urls = [[]]
-    for image in media:
-        image_urls[-1].append(image.full_url)
-        if len(image_urls[-1]) == 9:
-            image_urls.append([])
-    print(image_urls)
-    for images_list in image_urls:
-        bot_service.send_images(images_list)
+    if len(media) == 1:
+        bot_service.send_photo(media[0].full_url)
+    else:
+        image_urls = [[]]
+        for image in media:
+            image_urls[-1].append(image.full_url)
+            if len(image_urls[-1]) == 9:
+                image_urls.append([])
+        for images_list in image_urls:
+            bot_service.send_images(images_list)
 
 
 def send_infographics_videos(bot_service, media):
     media = [media_item for media_item in media if is_video(media_item.full_url)]
-    print(media)
-    video_urls = [[]]
-    for video in media:
-        video_urls[-1].append(video.full_url)
-        if len(video_urls[-1]) == 9:
-            video_urls.append([])
-    print(video_urls)
-    for videos_list in video_urls:
-        bot_service.send_images(videos_list)
+    if len(media) == 1:
+        print(media[0].full_url)
+        bot_service.send_video(media[0].full_url)
+    else:
+        video_urls = [[]]
+        for video in media:
+            video_urls[-1].append(video.full_url)
+            if len(video_urls[-1]) == 9:
+                video_urls.append([])
+        for videos_list in video_urls:
+            bot_service.send_videos(videos_list)
 
 
 def main():
