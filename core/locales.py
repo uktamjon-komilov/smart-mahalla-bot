@@ -1,7 +1,7 @@
 START = "/start"
 WELCOME_TEXT = "Smart mahalla🏘 Botiga Xush kelibsiz"
 
-MAIN_MENU_ITEM1 = "Viloyatlar🏛"
+MAIN_MENU_ITEM1 = "Hududlar🏛"
 MAIN_MENU_ITEM2 = "Ma'lumotlar📚"
 MAIN_MENU_ITEM3 = "Murojaatlar📨"
 

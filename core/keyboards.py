@@ -72,18 +72,18 @@ def get_mfy_keyboard(mfys):
 
 def get_mfy_text(mfy):
     text = "👆<b>MFY nomi: {}</b>".format(mfy.title)
-
-    if mfy.inspector and mfy.inspector_phone:
-        text += "\n\n👮‍♂️IIB inspektori: {}".format(mfy.inspector)
-        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.inspector_phone))
     
     if mfy.sector:
         text += "\n\n👮‍♂️Sektor rahbari: {}".format(mfy.sector.director)
         text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.sector.director_phone))
-    
+
     if mfy.rais and mfy.rais_phone:
         text += "\n\n🔰MFY raisi: {}".format(mfy.rais)
         text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.rais_phone))
+    
+    if mfy.inspector and mfy.inspector_phone:
+        text += "\n\n👮‍♂️IIB inspektori: {}".format(mfy.inspector)
+        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.inspector_phone))
     
     if mfy.helper and mfy.helper_phone:
         text += "\n\n🔰Xokim yordamchisi: {}".format(mfy.helper)

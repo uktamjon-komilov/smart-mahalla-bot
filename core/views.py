@@ -20,6 +20,8 @@ class BotViewSet(
     def create(self, request):
         data = request.data
 
+        print(data)
+
         data_service = TelegramService(data)
         bot_service = BotService(data)
 
