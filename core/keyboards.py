@@ -25,7 +25,7 @@ def get_regions_keyboard():
         ],
         []
     ]
-    regions = Region.objects.all()
+    regions = Region.objects.all().order_by("order_num")
     for index, region in enumerate(regions):
         REGIONS_INLINE_KEYBOARD[-1].append({
             "text": "{}".format(region.title),
@@ -92,6 +92,12 @@ def get_mfy_text(mfy):
     if mfy.leader and mfy.leader_phone:
         text += "\n\n🔰Yoshlar yetakchisi: {}".format(mfy.leader)
         text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.leader_phone))
+    
+    if mfy.schools.count() > 0:
+        for school in mfy.schools.all():
+            text += "\n\n🏫Maktab nomi: {}".format(school.title)
+            text += "\n🔰Maktab direktori: {}".format(school.head_master)
+            text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(school.phone))
     
     return text
 

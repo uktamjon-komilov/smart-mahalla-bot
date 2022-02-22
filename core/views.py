@@ -5,7 +5,8 @@ from rest_framework import status
 from core.services import BotService, TelegramService
 from core.keyboards import *
 from core.locales import *
-from core.utils import is_photo, send_infographics_photos, send_infographics_videos
+from core.utils import send_infographics_photos, send_infographics_videos
+from core.serializers import JustSerializer
 
 
 
@@ -15,6 +16,7 @@ class BotViewSet(
     ):
     authentication_classes = []
     permission_classes = []
+    serializer_class = JustSerializer
 
 
     def create(self, request):

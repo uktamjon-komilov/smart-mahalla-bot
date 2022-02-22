@@ -27,6 +27,7 @@ class Region(models.Model):
 
     title = models.CharField(max_length=255, verbose_name="Hudud nomi")
     cities_count = models.IntegerField(default=0, verbose_name="Tuman/shaharlar soni")
+    order_num = models.IntegerField(default=1)
 
     def __str__(self):
         return self.title or ""
@@ -80,7 +81,7 @@ class MFY(models.Model):
 
 
 class School(models.Model):
-    mfy = models.ForeignKey(MFY, on_delete=models.CASCADE)
+    mfy = models.ForeignKey(MFY, on_delete=models.CASCADE, related_name="schools")
     title = models.CharField(max_length=255, verbose_name="Maktab nomi")
     head_master = models.CharField(max_length=255, verbose_name="Direktori")
     phone = models.CharField(max_length=255, verbose_name="Telefon raqami")
