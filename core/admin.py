@@ -18,7 +18,54 @@ class MFYAdmin(admin.ModelAdmin):
     list_filter = ["city"]
     search_fields = ["city__title", "title"]
     inlines = [SchoolStackedInline]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if not request.user.is_superuser:
+            regions = request.user.regions.all()
+            print(regions)
+            print(queryset.count())
+            queryset = queryset.filter(city__region__in=regions)
+            print(queryset.count())
+        return queryset
+
+
+class CityAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if not request.user.is_superuser:
+            queryset = super().get_queryset(request) \
+                .filter(region__in=[*request.user.regions.all()])
+        return queryset
+
+
+class RegionAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if not request.user.is_superuser:
+            queryset = request.user.regions.all()
+        return queryset
     
+
+    def has_delete_permission(self, request, obj=None):
+        if not request.user.is_superuser:
+            return False
+        return True
+
+
+    def has_add_permission(self, request, obj=None):
+        if not request.user.is_superuser:
+            return False
+        return True
+    
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if not request.user.is_superuser:
+            try:
+                fields.remove("moderators")
+            except:
+                pass
+        return fields
 
 @admin_thumbnails.thumbnail("image")
 class HelperInfographicAdmin(admin.ModelAdmin):
@@ -47,13 +94,10 @@ class LeaderInfographicAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Profile, ProfileAdmin)
-admin.site.register(City)
-admin.site.register(Region)
+admin.site.register(City, CityAdmin)
+admin.site.register(Region, RegionAdmin)
 admin.site.register(Sector)
 admin.site.register(TelegramChannel)
 admin.site.register(MFY, MFYAdmin)
 admin.site.register(HelperInfographic, HelperInfographicAdmin)
 admin.site.register(LeaderInfographic, LeaderInfographicAdmin)
-
-admin.site.unregister(Group)
-admin.site.unregister(User)

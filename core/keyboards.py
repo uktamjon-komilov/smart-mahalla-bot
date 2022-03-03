@@ -75,7 +75,10 @@ def get_mfy_text(mfy):
     
     try:
         if mfy.sector and mfy.sector.director:
-            text += "\n\n👮‍♂️Sektor rahbari: {}".format(mfy.sector.director)
+            number = ""
+            if mfy.sector.number:
+                number = "{}-".format(mfy.sector.number)
+            text += "\n\n👮‍♂️{}Sektor rahbari: {}".format(number, mfy.sector.director)
             text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.sector.director_phone))
     except:
         pass

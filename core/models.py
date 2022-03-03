@@ -1,5 +1,9 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class Profile(models.Model):
@@ -28,6 +32,7 @@ class Region(models.Model):
     title = models.CharField(max_length=255, verbose_name="Hudud nomi")
     cities_count = models.IntegerField(default=0, verbose_name="Tuman/shaharlar soni")
     order_num = models.IntegerField(default=1)
+    moderators = models.ManyToManyField(User, related_name="regions")
 
     def __str__(self):
         return self.title or ""
