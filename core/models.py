@@ -111,7 +111,7 @@ class HelperInfographic(models.Model):
     def full_url(self):
         if self.file_id:
             return self.file_id
-        return "{}{}".format(settings.BASE_URL, self.image.url)
+        return "{}{}".format(settings.SITE_URL, self.image.url)
 
 
 class LeaderInfographic(models.Model):
@@ -126,7 +126,7 @@ class LeaderInfographic(models.Model):
     def full_url(self):
         if self.file_id:
             return self.file_id
-        return "{}{}".format(settings.BASE_URL, self.image.url)
+        return "{}{}".format(settings.SITE_URL, self.image.url)
 
 
 class TelegramChannel(models.Model):

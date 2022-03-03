@@ -73,9 +73,12 @@ def get_mfy_keyboard(mfys):
 def get_mfy_text(mfy):
     text = "👆<b>MFY nomi: {}</b>".format(mfy.title)
     
-    if mfy.sector:
-        text += "\n\n👮‍♂️Sektor rahbari: {}".format(mfy.sector.director)
-        text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.sector.director_phone))
+    try:
+        if mfy.sector and mfy.sector.director:
+            text += "\n\n👮‍♂️Sektor rahbari: {}".format(mfy.sector.director)
+            text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.sector.director_phone))
+    except:
+        pass
 
     if mfy.rais and mfy.rais_phone:
         text += "\n\n🔰MFY raisi: {}".format(mfy.rais)
@@ -93,11 +96,14 @@ def get_mfy_text(mfy):
         text += "\n\n🔰Yoshlar yetakchisi: {}".format(mfy.leader)
         text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(mfy.leader_phone))
     
-    if mfy.schools.count() > 0:
-        for school in mfy.schools.all():
-            text += "\n\n🏫Maktab nomi: {}".format(school.title)
-            text += "\n🔰Maktab direktori: {}".format(school.head_master)
-            text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(school.phone))
+    try:
+        if "qoraqalp" in mfy.city.region.title.lower() and mfy.schools.count() > 0:
+            for school in mfy.schools.all():
+                text += "\n\n🏫Maktab nomi: {}".format(school.title)
+                text += "\n🔰Maktab direktori: {}".format(school.head_master)
+                text += "\n☎️Telefon nomeri: {}".format(clean_phone_number(school.phone))
+    except:
+        pass
     
     return text
 

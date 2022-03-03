@@ -1,8 +1,9 @@
 from django.conf import settings
 import requests as r
 from openpyxl import load_workbook
+from django.db.utils import IntegrityError
 
-from core.models import MFY, City, Profile, School, TelegramChannel
+from core.models import MFY, City, Profile, School, Sector, TelegramChannel
 from core.utils import *
 
 
@@ -106,6 +107,10 @@ class TelegramService:
         profile = self.get_or_create_profile()
         profile.step = step
         profile.save()
+    
+    def get_step(self):
+        profile = self.get_or_create_profile()
+        return profile.step
 
 
 class BotService:
@@ -155,6 +160,7 @@ class BotService:
             URL,
             json=DATA
         )
+        print(response.content)
         if response.status_code == 200:
             return True
         return False
@@ -190,10 +196,13 @@ class BotService:
                 } for image_url in image_urls
             ]
         }
+        from pprint import pprint
+        pprint(DATA)
         response = r.post(
             URL,
             json=DATA
         )
+        print(response.content)
         if response.status_code == 200:
             return True
         return False
@@ -262,7 +271,8 @@ class BotService:
 
 class MfyData:
     def __init__(self, data, cities):
-        self.city = cities[data[0]]
+        city_id = int(data[0])
+        self.city = cities[city_id]
         self.title = data[1]
         self.inspector = data[2] or ""
         self.inspector_phone = clean_phone_number(data[3] or "")
@@ -273,6 +283,8 @@ class MfyData:
         self.leader = data[8] or ""
         self.leader_phone = clean_phone_number(data[9] or "")
         self.schools = self.exptract_schools(data)
+        self.sector = data[14] or ""
+        self.sector_phone = data[15] or ""
         # self.translit()
     
 
@@ -282,8 +294,8 @@ class MfyData:
         schools_list = []
         if not column:
             return schools_list
-        schools_raw = list(filter(lambda x: len(x) > 0, column.split(";")))
-        phones_raw = list(filter(lambda x: len(x) > 0, str(phones).split(";")))
+        schools_raw = list(filter(lambda x: len(str(x)) > 0, str(column).split(";")))
+        phones_raw = list(filter(lambda x: len(str(x)) > 0, str(phones).split(";")))
         for index, school in enumerate(schools_raw):
             try:
                 if "maktab" in school:
@@ -308,11 +320,21 @@ class MfyData:
 
     def translit(self):
         trans = Trans()
-        self.title = trans.translit(self.title)
-        self.inspector = trans.translit(self.inspector)
-        self.rais = trans.translit(self.rais)
-        self.helper = trans.translit(self.helper)
-        self.leader = trans.translit(self.leader)
+        text = "{}=={}=={}=={}=={}=={}".format(
+            self.title,
+            self.inspector,
+            self.rais,
+            self.helper,
+            self.leader,
+            self.sector
+        )
+        result = trans.translit(text).split("==")
+        self.title = result[0]
+        self.inspector = result[1]
+        self.rais = result[2]
+        self.helper = result[3]
+        self.leader = result[4]
+        self.sector = result[5]
     
 
     def json(self):
@@ -327,7 +349,11 @@ class MfyData:
             "helper_phone": self.helper_phone,
             "leader": self.leader,
             "leader_phone": self.leader_phone,
-            "schools": self.schools
+            "schools": self.schools,
+            "sector": {
+                "director": self.sector,
+                "director_phone": self.sector_phone
+            }
         }
 
 
@@ -359,8 +385,8 @@ class ExcelService:
             try:
                 city = City.objects.get(id=row[1])
                 self.cities[city.id] = city
-            except:
-                pass
+            except Exception as e:
+                print(e)
         
         for row in self.items_sheet.values:
             if row[0] and row[0] != "Tuman/Shaharlar IDsi":
@@ -369,17 +395,28 @@ class ExcelService:
     
 
     def save_or_update(self, mfy_data):
+        print(mfy_data)
         schools_list = mfy_data.pop("schools", [])
+        sector_data = mfy_data.pop("sector", {})
         mfys = MFY.objects.filter(city=mfy_data["city"], title=mfy_data["title"])
+        sector = Sector.objects.filter(**sector_data)
+        if sector.exists():
+            sector = sector.first()
+        else:
+            sector = Sector(**sector_data)
+            sector.save()
         if mfys.exists():
             mfy_obj = mfys.first()
             for key in mfy_data.keys():
                 if hasattr(mfy_obj, key):
                     setattr(mfy_obj, key, mfy_data[key])
-            mfy_obj.save()
         else:
             mfy_obj = MFY(**mfy_data)
+        try:
+            mfy_obj.sector = sector
             mfy_obj.save()
+        except IntegrityError:
+            return
         for school_item in schools_list:
             school = School(mfy=mfy_obj, **school_item)
             school.save()

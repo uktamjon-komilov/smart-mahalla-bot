@@ -9,7 +9,7 @@ class Trans:
     BASE_URL = "https://uzlatin.com"
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
-        # chrome_options.headless = True
+        chrome_options.headless = True
         self.driver = webdriver.Chrome(
             CHROME_DRIVER,
             chrome_options=chrome_options
@@ -93,6 +93,7 @@ def send_infographics_photos(bot_service, media):
             image_urls[-1].append(image.full_url)
             if len(image_urls[-1]) == 9:
                 image_urls.append([])
+
         for images_list in image_urls:
             bot_service.send_images(images_list)
 

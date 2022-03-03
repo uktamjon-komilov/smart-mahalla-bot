@@ -117,6 +117,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 BOT_TOKEN = env("BOT_TOKEN")
 
 BASE_URL = env("BASE_URL")
+SITE_URL = env("SITE_URL")
 
 CHROME_DRIVER = env("CHROME_DRIVER")
 
